@@ -18,6 +18,7 @@ export interface UserQuery extends PageQuery {
   nickName?: string;
   phonenumber?: string;
   status?: string;
+  isHide?: number;
   deptId?: string | number;
   roleId?: string | number;
   userIds?:  string | number | (string | number)[] | undefined;
@@ -42,6 +43,7 @@ export interface UserVO extends BaseEntity {
   loginIp: string;
   loginDate: string;
   remark: string;
+  isHide?: number;
   deptName: string;
   roles: RoleVO[];
   roleIds: any;
@@ -65,6 +67,8 @@ export interface UserForm {
   sex?: string;
   status: string;
   remark?: string;
+  isHide?: number;
+  idCard?: string;
   postIds: string[];
   roleIds: string[];
 }

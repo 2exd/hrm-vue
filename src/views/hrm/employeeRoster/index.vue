@@ -2,9 +2,7 @@
   <div class="p-2">
     <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover"
-          class="tw-relative"
-        >
+        <el-card class="tw-relative" shadow="hover">
           <el-form ref="queryFormRef" :inline="true" :model="queryParams">
             <!--            <el-form-item label="系统用户ID" prop="userId">-->
             <!--              <el-input v-model="queryParams.userId" placeholder="请输入系统用户ID" clearable @keyup.enter="handleQuery" />-->
@@ -36,12 +34,12 @@
             <!--            <el-form-item label="开户行名称" prop="bankName">-->
             <!--              <el-input v-model="queryParams.bankName" placeholder="请输入开户行名称" clearable @keyup.enter="handleQuery" />-->
             <!--            </el-form-item>-->
-<!--            <el-form-item label="日薪" prop="dailySalary">-->
-<!--              <el-input v-model="queryParams.dailySalary" clearable placeholder="请输入日薪" @keyup.enter="handleQuery" />-->
-<!--            </el-form-item>-->
-<!--            <el-form-item label="月薪" prop="monthlySalary">-->
-<!--              <el-input v-model="queryParams.monthlySalary" clearable placeholder="请输入月薪" @keyup.enter="handleQuery" />-->
-<!--            </el-form-item>-->
+            <!--            <el-form-item label="日薪" prop="dailySalary">-->
+            <!--              <el-input v-model="queryParams.dailySalary" clearable placeholder="请输入日薪" @keyup.enter="handleQuery" />-->
+            <!--            </el-form-item>-->
+            <!--            <el-form-item label="月薪" prop="monthlySalary">-->
+            <!--              <el-input v-model="queryParams.monthlySalary" clearable placeholder="请输入月薪" @keyup.enter="handleQuery" />-->
+            <!--            </el-form-item>-->
             <el-form-item label="签订时间" style="width: 308px">
               <el-date-picker
                 v-model="dateRangeContractSignTime"
@@ -115,22 +113,30 @@
         <!--        <el-table-column label="主键ID" align="center" prop="id" v-if="true" />-->
         <!--        <el-table-column label="系统用户ID" align="center" prop="userId" />-->
         <el-table-column align="center" label="员工姓名" prop="employeeName" />
-        <el-table-column align="center" label="身份证号" prop="idCard" />
-        <el-table-column align="center" label="电话号码" prop="phone" />
-        <el-table-column align="center" label="家庭住址" prop="homeAddress" />
-        <el-table-column align="center" label="紧急联系人姓名" prop="emergencyContact" />
-        <el-table-column align="center" label="紧急联系人电话" prop="emergencyContactPhone" />
+        <el-table-column align="center" label="身份证号" prop="idCard" width="200" />
+        <el-table-column align="center" label="电话号码" prop="phone" width="150" />
+        <el-table-column align="center" label="家庭住址" prop="homeAddress" width="200">
+          <template v-slot="scope">
+            <el-tooltip :content="scope?.row?.homeAddress || '无'" class="item" effect="dark" placement="top-start">
+              <div class="whitespace-nowrap overflow-hidden text-ellipsis w-full cursor-pointer">
+                {{ scope?.row?.homeAddress || '无' }}
+              </div>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="紧急联系人" prop="emergencyContact" width="100" />
+        <el-table-column align="center" label="紧急联系人电话" prop="emergencyContactPhone" width="150" />
         <!--        <el-table-column label="银行卡号" align="center" prop="bankCard" />-->
         <!--        <el-table-column label="银行卡行号" align="center" prop="bankBranchCode" />-->
         <!--        <el-table-column label="开户行名称" align="center" prop="bankName" />-->
         <!--        <el-table-column label="日薪" align="center" prop="dailySalary" />-->
         <!--        <el-table-column label="月薪" align="center" prop="monthlySalary" />-->
+        <el-table-column align="center" label="劳动合同编码" prop="contractCode" width="150" />
         <el-table-column align="center" label="劳动合同签订时间" prop="contractSignTime" width="180">
           <template #default="scope">
             <span>{{ parseTime(scope.row.contractSignTime, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="劳动合同编码" prop="contractCode" />
         <el-table-column align="center" label="劳动合同到期时间" prop="contractExpireTime" width="180">
           <template #default="scope">
             <span>{{ parseTime(scope.row.contractExpireTime, '{y}-{m}-{d}') }}</span>
@@ -163,8 +169,9 @@
         <!--          <el-input v-model="form.userId" placeholder="请输入系统用户ID" />-->
         <!--        </el-form-item>-->
         <el-form-item label="员工姓名" prop="employeeName">
-          <el-input v-model="form.employeeName" placeholder="请输入员工姓名" />
+          <el-input v-model="form.employeeName" placeholder="请选择员工" @click="handleSelectClick('delegateName')" />
         </el-form-item>
+
         <el-form-item label="身份证号" prop="idCard">
           <el-input v-model="form.idCard" placeholder="请输入身份证号" />
         </el-form-item>
@@ -233,6 +240,8 @@
         </div>
       </template>
     </el-dialog>
+
+    <PersonnelSelection ref="personnelSelectionRef" @confirm="handleConfirm" />
   </div>
 </template>
 
@@ -241,6 +250,7 @@ import { addEmployeeRoster, delEmployeeRoster, getEmployeeRoster, listEmployeeRo
 import { EmployeeRosterForm, EmployeeRosterQuery, EmployeeRosterVO } from '@/api/hrm/employeeRoster/types';
 import { parseTime } from '@/utils/ruoyi';
 import { reactive, ref } from 'vue';
+import PersonnelSelection from '@/views/hrm/common/personnelSelection.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -310,12 +320,42 @@ const data = reactive<PageData<EmployeeRosterForm, EmployeeRosterQuery>>({
   },
   rules: {
     id: [{ required: true, message: '主键ID不能为空', trigger: 'blur' }],
-    userId: [{ required: true, message: '系统用户ID不能为空', trigger: 'blur' }],
-    employeeName: [{ required: true, message: '员工姓名不能为空', trigger: 'blur' }],
+    userId: [
+      {
+        required: true,
+        message: '系统用户ID不能为空',
+        trigger: 'blur'
+      }
+    ],
+    employeeName: [
+      {
+        required: true,
+        message: '员工姓名不能为空',
+        trigger: 'blur'
+      }
+    ],
     idCard: [{ required: true, message: '身份证号不能为空', trigger: 'blur' }],
-    contractSignTime: [{ required: true, message: '劳动合同签订时间不能为空', trigger: 'blur' }],
-    contractCode: [{ required: true, message: '劳动合同编码不能为空', trigger: 'blur' }],
-    contractExpireTime: [{ required: true, message: '劳动合同到期时间不能为空', trigger: 'blur' }]
+    contractSignTime: [
+      {
+        required: true,
+        message: '劳动合同签订时间不能为空',
+        trigger: 'blur'
+      }
+    ],
+    contractCode: [
+      {
+        required: true,
+        message: '劳动合同编码不能为空',
+        trigger: 'blur'
+      }
+    ],
+    contractExpireTime: [
+      {
+        required: true,
+        message: '劳动合同到期时间不能为空',
+        trigger: 'blur'
+      }
+    ]
   }
 });
 
@@ -422,6 +462,31 @@ const handleExport = () => {
   );
 };
 
+const personnelSelectionRef = ref<any>();
+const activeSelectField = ref<string>(''); // 记录当前激活的
+
+const handleSelectClick = (field: string) => {
+  activeSelectField.value = field; // 记录当前字段
+  personnelSelectionRef.value.drawer = true; // 打开抽屉
+
+  //? 绑定信息
+};
+
+//? 确认选择人员的处理
+const handleConfirm = (selectedUser: any) => {
+  console.log(selectedUser);
+
+  //? 绑定选中的用户信息到表单
+  form.value.userId = selectedUser.userId;
+  form.value.employeeName = selectedUser.userName;
+  form.value.idCard = selectedUser.idCard;
+  form.value.phone = selectedUser.phonenumber;
+
+  activeSelectField.value = ''; // 清空记录
+  personnelSelectionRef.value.drawer = false;
+};
+
+//? 生命周期
 onMounted(() => {
   getList();
 });

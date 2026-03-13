@@ -9,6 +9,18 @@ import { parseStrEmpty } from '@/utils/ruoyi';
  * 查询用户列表
  * @param query
  */
+export const listNoAuthUser = (query: UserQuery): AxiosPromise<UserVO[]> => {
+  return request({
+    url: '/system/user/listNoAuth',
+    method: 'get',
+    params: query
+  });
+};
+
+/**
+ * 查询用户列表
+ * @param query
+ */
 export const listUser = (query: UserQuery): AxiosPromise<UserVO[]> => {
   return request({
     url: '/system/user/list',
@@ -211,6 +223,7 @@ export const deptTreeSelect = (): AxiosPromise<DeptTreeVO[]> => {
 };
 
 export default {
+  listNoAuthUser,
   listUser,
   getUser,
   optionSelect,

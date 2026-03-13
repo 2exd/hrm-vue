@@ -49,7 +49,10 @@ VXETable.setConfig({
 import { ElDialog } from 'element-plus';
 ElDialog.props.closeOnClickModal.default = false;
 
+
 const app = createApp(App);
+
+
 
 app.use(HighLight);
 app.use(ElementIcons);
