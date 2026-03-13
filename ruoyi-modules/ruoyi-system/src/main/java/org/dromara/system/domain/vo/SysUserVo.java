@@ -108,6 +108,13 @@ public class SysUserVo implements Serializable {
      */
     private String remark;
 
+    private Integer isHide;
+
+     /**
+     * 身份证号
+     */
+    private String idCard;
+
     /**
      * 创建时间
      */

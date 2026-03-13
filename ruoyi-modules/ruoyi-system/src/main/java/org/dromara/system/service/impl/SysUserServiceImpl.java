@@ -57,6 +57,11 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     private final SysUserPostMapper userPostMapper;
 
     @Override
+    public TableDataInfo<SysUserVo> selectPageUserListNoAuth(SysUserBo user, PageQuery pageQuery) {
+        Page<SysUserVo> page = baseMapper.selectPageUserListNoAuth(pageQuery.build(), this.buildQueryWrapper(user));
+        return TableDataInfo.build(page);
+    }
+    @Override
     public TableDataInfo<SysUserVo> selectPageUserList(SysUserBo user, PageQuery pageQuery) {
         Page<SysUserVo> page = baseMapper.selectPageUserList(pageQuery.build(), this.buildQueryWrapper(user));
         return TableDataInfo.build(page);
@@ -90,6 +95,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         Map<String, Object> params = user.getParams();
         LambdaQueryWrapper<SysUser> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(SysUser::getDelFlag, SystemConstants.NORMAL)
+            .eq(ObjectUtil.isNotNull(user.getIsHide()), SysUser::getIsHide, user.getIsHide())
             .eq(ObjectUtil.isNotNull(user.getUserId()), SysUser::getUserId, user.getUserId())
             .in(StringUtils.isNotBlank(user.getUserIds()), SysUser::getUserId, StringUtils.splitTo(user.getUserIds(), Convert::toLong))
             .like(StringUtils.isNotBlank(user.getUserName()), SysUser::getUserName, user.getUserName())

@@ -57,10 +57,19 @@ public class SysUserController extends BaseController {
     private final ISysDeptService deptService;
     private final ISysTenantService tenantService;
 
+
     /**
      * 获取用户列表
      */
-    @SaCheckPermission("system:user:list")
+    @GetMapping("/listNoAuth")
+    public TableDataInfo<SysUserVo> listNoAuth(SysUserBo user, PageQuery pageQuery) {
+        return userService.selectPageUserListNoAuth(user, pageQuery);
+    }
+
+    /**
+     * 获取用户列表
+     */
+    @SaCheckPermission("system:user:query")
     @GetMapping("/list")
     public TableDataInfo<SysUserVo> list(SysUserBo user, PageQuery pageQuery) {
         return userService.selectPageUserList(user, pageQuery);
@@ -290,7 +299,7 @@ public class SysUserController extends BaseController {
     /**
      * 获取部门树列表
      */
-    @SaCheckPermission("system:user:list")
+    @SaCheckPermission("system:user:query")
     @GetMapping("/deptTree")
     public R<List<Tree<Long>>> deptTree(SysDeptBo dept) {
         return R.ok(deptService.selectDeptTreeList(dept));
@@ -299,7 +308,7 @@ public class SysUserController extends BaseController {
     /**
      * 获取部门下的所有用户信息
      */
-    @SaCheckPermission("system:user:list")
+    @SaCheckPermission("system:user:query")
     @GetMapping("/list/dept/{deptId}")
     public R<List<SysUserVo>> listByDept(@PathVariable @NotNull Long deptId) {
         return R.ok(userService.selectUserListByDept(deptId));

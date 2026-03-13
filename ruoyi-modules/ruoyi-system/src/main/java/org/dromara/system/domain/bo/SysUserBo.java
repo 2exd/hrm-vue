@@ -87,6 +87,13 @@ public class SysUserBo extends BaseEntity {
      */
     private String remark;
 
+    private Integer isHide;
+
+     /**
+     * 身份证号
+     */
+    private String idCard;
+
     /**
      * 角色组
      */

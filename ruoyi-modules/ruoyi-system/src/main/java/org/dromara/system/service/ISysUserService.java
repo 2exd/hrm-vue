@@ -24,6 +24,16 @@ public interface ISysUserService {
      * @return 用户信息
      */
     TableDataInfo<SysUserVo> selectPageUserList(SysUserBo user, PageQuery pageQuery);
+    /**
+     * 根据条件分页查询用户列表（不包含权限校验）
+     *
+     * @param user      用户信息
+     * @param pageQuery 分页
+     * @return 用户信息
+     */
+    TableDataInfo<SysUserVo> selectPageUserListNoAuth(SysUserBo user, PageQuery pageQuery);
+
+
 
     /**
      * 导出用户列表

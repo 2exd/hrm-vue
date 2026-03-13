@@ -28,6 +28,17 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @param queryWrapper 查询条件
      * @return 分页的用户信息
      */
+    default Page<SysUserVo> selectPageUserListNoAuth(Page<SysUser> page, Wrapper<SysUser> queryWrapper) {
+        return this.selectVoPage(page, queryWrapper);
+    }
+
+    /**
+     * 分页查询用户列表，并进行数据权限控制
+     *
+     * @param page         分页参数
+     * @param queryWrapper 查询条件
+     * @return 分页的用户信息
+     */
     @DataPermission({
         @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")

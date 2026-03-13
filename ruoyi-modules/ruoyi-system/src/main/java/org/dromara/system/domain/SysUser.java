@@ -103,6 +103,12 @@ public class SysUser extends TenantEntity {
      */
     private String remark;
 
+    private Integer isHide;
+
+    /**
+     * 身份证号
+     */
+    private String idCard;
 
     public SysUser(Long userId) {
         this.userId = userId;
