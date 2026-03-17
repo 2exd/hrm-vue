@@ -14,7 +14,7 @@
               <el-date-picker
                 v-model="dateRangeSalaryMonth"
                 value-format="YYYY-MM-DD HH:mm:ss"
-                type="daterange"
+                type="monthrange"
                 range-separator="-"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
@@ -59,7 +59,7 @@
             <span>{{ parseTime(scope.row.salaryMonth, '{y}-{m}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="当月总工资" align="center" width="120">
+        <el-table-column label="应领合计" align="center" width="120">
           <template #default="scope">
             <el-tag type="success" effect="dark">
               ¥ {{ calculateTotalSalary(scope.row).toFixed(2) }}
@@ -208,15 +208,15 @@
           </el-row>
         </div>
 
-        <!-- 当月总工资（只读，自动计算） -->
+        <!-- 应领合计（只读，自动计算） -->
         <div class="form-section total-salary-section">
           <div class="section-title">
             <el-icon><Coin /></el-icon>
-            <span>当月总工资</span>
+            <span>应领合计</span>
           </div>
           <el-row :gutter="20">
             <el-col :span="24">
-              <el-form-item label="当月总工资">
+              <el-form-item label="应领合计">
                 <div class="total-salary-display">
                   <span class="amount">¥ {{ totalSalary }}</span>
                   <span class="formula"> = 基薪 + 绩效 + 岗位 + 证书费 + 加班 + 通讯 + 交通 + 餐补 + 其他</span>
@@ -512,7 +512,7 @@ const handleConfirm = (selectedUser: any) => {
   }
 }
 
-// 当月总工资显示区域
+// 应领合计显示区域
 .total-salary-section {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   border-left: 4px solid #f5576c;

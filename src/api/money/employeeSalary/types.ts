@@ -80,7 +80,7 @@ export interface EmployeeSalaryVO {
   salaryMonth: string;
 
   /**
-   * 当月总工资（自动计算）
+   * 应领合计（自动计算）
    */
   totalSalary: number;
 
@@ -168,7 +168,7 @@ export interface EmployeeSalaryForm extends BaseEntity {
   salaryMonth?: string;
 
   /**
-   * 当月总工资（自动计算）
+   * 应领合计（自动计算）
    */
   totalSalary?: number;
 

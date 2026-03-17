@@ -109,6 +109,16 @@ export interface EmployeeSocialInsuranceVO {
    */
   infantCare: number;
 
+  /**
+   * 扣款（罚款）
+   */
+  deductionPenalty: number;
+
+  /**
+   * 扣款（借支）
+   */
+  deductionLoan: number;
+
 }
 
 export interface EmployeeSocialInsuranceForm extends BaseEntity {
@@ -221,6 +231,16 @@ export interface EmployeeSocialInsuranceForm extends BaseEntity {
    * 累计专项附加扣除-婴幼儿专项
    */
   infantCare?: number;
+
+  /**
+   * 扣款（罚款）
+   */
+  deductionPenalty?: number;
+
+  /**
+   * 扣款（借支）
+   */
+  deductionLoan?: number;
 
 }
 

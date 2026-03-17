@@ -17,8 +17,8 @@
                 end-placeholder="结束日期"
                 range-separator="-"
                 start-placeholder="开始日期"
-                type="daterange"
                 value-format="YYYY-MM-DD HH:mm:ss"
+                type="monthrange"
               />
             </el-form-item>
             <el-form-item>
@@ -81,6 +81,11 @@
             <span>{{ parseTime(scope.row.insuranceMonth, '{y}-{m}') }}</span>
           </template>
         </el-table-column>
+        <el-table-column align="center" label="扣款合计" min-width="100">
+          <template #default="scope">
+            <el-tag effect="dark" size="small" type="danger">¥{{ calculateTotalDeduction(scope.row).toFixed(2) }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="个人缴纳" min-width="95">
           <template #default="scope">
             <el-tag effect="dark" size="small" type="success">¥{{ calculatePersonalTotal(scope.row).toFixed(2) }}</el-tag>
@@ -129,6 +134,18 @@
           <el-table-column align="center" label="单位" prop="unemploymentCompany" min-width="70">
             <template #default="scope">
               <span class="amount-text company">¥{{ scope.row.unemploymentCompany || 0 }}</span>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column align="center" label="扣款" min-width="140">
+          <el-table-column align="center" label="罚款" prop="deductionPenalty" min-width="70">
+            <template #default="scope">
+              <span class="amount-text danger">¥{{ scope.row.deductionPenalty || 0 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="借支" prop="deductionLoan" min-width="70">
+            <template #default="scope">
+              <span class="amount-text danger">¥{{ scope.row.deductionLoan || 0 }}</span>
             </template>
           </el-table-column>
         </el-table-column>
@@ -445,6 +462,46 @@
           </div>
         </div>
 
+        <!-- 扣款 -->
+        <div class="form-section">
+          <div class="section-title penalty">
+            <el-icon>
+              <Money />
+            </el-icon>
+            <span>扣款</span>
+          </div>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="罚款">
+                <el-input-number
+                  v-model="form.deductionPenalty"
+                  :controls="false"
+                  :min="0"
+                  :precision="2"
+                  placeholder="罚款金额"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="借支">
+                <el-input-number
+                  v-model="form.deductionLoan"
+                  :controls="false"
+                  :min="0"
+                  :precision="2"
+                  placeholder="借支金额"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <div class="subtotal penalty-subtotal">
+            <span>扣款合计：</span>
+            <span class="amount">¥ {{ penaltyTotal }}</span>
+          </div>
+        </div>
+
         <!-- 备注 -->
         <div class="form-section">
           <div class="section-title">
@@ -665,7 +722,9 @@ const initFormData: EmployeeSocialInsuranceForm = {
   housingLoan: 0,
   housingRent: 0,
   supportElderly: 0,
-  infantCare: 0
+  infantCare: 0,
+  deductionPenalty: 0,
+  deductionLoan: 0
 };
 
 const data = reactive<PageData<EmployeeSocialInsuranceForm, EmployeeSocialInsuranceQuery>>({
@@ -777,7 +836,9 @@ const handleUpdate = async (row?: EmployeeSocialInsuranceVO) => {
     housingLoan: data.housingLoan,
     housingRent: data.housingRent,
     supportElderly: data.supportElderly,
-    infantCare: data.infantCare
+    infantCare: data.infantCare,
+    deductionPenalty: data.deductionPenalty,
+    deductionLoan: data.deductionLoan
   });
   // 设置本地缴纳基数（后端可能没有返回，使用个人缴纳金额反推基数）
   const rate = insuranceConfigStore.getInsuranceRate;
@@ -917,6 +978,13 @@ const deductionTotal = computed(() => {
   return (children + continuing + loan + rent + support + infant).toFixed(2);
 });
 
+/** 扣款合计 */
+const penaltyTotal = computed(() => {
+  const penalty = Number(form.value.deductionPenalty) || 0;
+  const loan = Number(form.value.deductionLoan) || 0;
+  return (penalty + loan).toFixed(2);
+});
+
 /** 计算列表行个人缴纳合计 */
 const calculatePersonalTotal = (row: EmployeeSocialInsuranceVO) => {
   const pension = Number(row.pensionPersonal) || 0;
@@ -942,6 +1010,21 @@ const calculateDeductionTotal = (row: EmployeeSocialInsuranceVO) => {
   const support = Number(row.supportElderly) || 0;
   const infant = Number(row.infantCare) || 0;
   return children + continuing + loan + rent + support + infant;
+};
+
+/** 计算列表行扣款合计 */
+const calculatePenaltyTotal = (row: EmployeeSocialInsuranceVO) => {
+  const penalty = Number(row.deductionPenalty) || 0;
+  const loan = Number(row.deductionLoan) || 0;
+  return penalty + loan;
+};
+
+/** 计算列表行总扣款（个人缴纳+罚款+借支） */
+const calculateTotalDeduction = (row: EmployeeSocialInsuranceVO) => {
+  const personalTotal = calculatePersonalTotal(row);
+  const penalty = Number(row.deductionPenalty) || 0;
+  const loan = Number(row.deductionLoan) || 0;
+  return personalTotal + penalty + loan;
 };
 
 // 比例配置管理
@@ -1103,6 +1186,15 @@ const handleConfirm = (selectedUser: any) => {
           color: var(--el-color-info);
         }
       }
+
+      &.penalty {
+        border-left: 4px solid var(--el-color-danger);
+        padding-left: 12px;
+
+        .el-icon {
+          color: var(--el-color-danger);
+        }
+      }
     }
 
     .config-preview {
@@ -1211,6 +1303,11 @@ const handleConfirm = (selectedUser: any) => {
         color: var(--el-color-info);
       }
 
+      &.penalty-subtotal {
+        background-color: var(--el-color-danger-light-9);
+        color: var(--el-color-danger);
+      }
+
       .amount {
         font-size: 18px;
         font-weight: bold;
@@ -1268,6 +1365,10 @@ const handleConfirm = (selectedUser: any) => {
 
     &.company {
       color: var(--el-color-warning);
+    }
+
+    &.danger {
+      color: var(--el-color-danger);
     }
   }
 
