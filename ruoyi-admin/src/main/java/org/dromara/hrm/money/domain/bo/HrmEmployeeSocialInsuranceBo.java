@@ -142,5 +142,15 @@ public class HrmEmployeeSocialInsuranceBo extends BaseEntity {
      */
     private BigDecimal infantCare;
 
+    /**
+     * 扣款（罚款）
+     */
+    private BigDecimal deductionPenalty;
+
+    /**
+     * 扣款（借支）
+     */
+    private BigDecimal deductionLoan;
+
 
 }

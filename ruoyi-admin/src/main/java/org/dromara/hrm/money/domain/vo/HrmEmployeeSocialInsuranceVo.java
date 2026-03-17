@@ -173,5 +173,17 @@ public class HrmEmployeeSocialInsuranceVo implements Serializable {
     @ExcelProperty(value = "累计专项附加扣除-婴幼儿专项")
     private BigDecimal infantCare;
 
+    /**
+     * 扣款（罚款）
+     */
+    @ExcelProperty(value = "扣款-罚款")
+    private BigDecimal deductionPenalty;
+
+    /**
+     * 扣款（借支）
+     */
+    @ExcelProperty(value = "扣款-借支")
+    private BigDecimal deductionLoan;
+
 
 }
