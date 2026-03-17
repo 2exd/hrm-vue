@@ -1,5 +1,6 @@
 package org.dromara.hrm.money.service;
 
+import org.dromara.hrm.money.domain.vo.EmployeeSalaryDetailVo;
 import org.dromara.hrm.money.domain.vo.HrmEmployeeSalaryVo;
 import org.dromara.hrm.money.domain.bo.HrmEmployeeSalaryBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
@@ -65,4 +66,14 @@ public interface IHrmEmployeeSalaryService {
      * @return 是否删除成功
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    /**
+     * 查询员工薪资和保险详情
+     *
+     * @param userId     员工ID
+     * @param beginMonth 开始月份（YYYYMM）
+     * @param endMonth   结束月份（YYYYMM）
+     * @return 员工薪资和保险详情
+     */
+    EmployeeSalaryDetailVo querySalaryDetail(Long userId, String beginMonth, String endMonth);
 }

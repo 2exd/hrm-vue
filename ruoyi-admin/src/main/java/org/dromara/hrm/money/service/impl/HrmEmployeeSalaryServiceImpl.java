@@ -11,11 +11,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.dromara.hrm.money.domain.bo.HrmEmployeeSalaryBo;
+import org.dromara.hrm.money.domain.vo.EmployeeSalaryDetailVo;
 import org.dromara.hrm.money.domain.vo.HrmEmployeeSalaryVo;
+import org.dromara.hrm.money.domain.vo.HrmEmployeeSocialInsuranceVo;
 import org.dromara.hrm.money.domain.HrmEmployeeSalary;
+import org.dromara.hrm.money.domain.HrmEmployeeSocialInsurance;
 import org.dromara.hrm.money.mapper.HrmEmployeeSalaryMapper;
+import org.dromara.hrm.money.mapper.HrmEmployeeSocialInsuranceMapper;
 import org.dromara.hrm.money.service.IHrmEmployeeSalaryService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
@@ -32,6 +37,7 @@ import java.util.Collection;
 public class HrmEmployeeSalaryServiceImpl implements IHrmEmployeeSalaryService {
 
     private final HrmEmployeeSalaryMapper baseMapper;
+    private final HrmEmployeeSocialInsuranceMapper socialInsuranceMapper;
 
     /**
      * 查询员工薪资
@@ -74,6 +80,7 @@ public class HrmEmployeeSalaryServiceImpl implements IHrmEmployeeSalaryService {
         Map<String, Object> params = bo.getParams();
         LambdaQueryWrapper<HrmEmployeeSalary> lqw = Wrappers.lambdaQuery();
         lqw.orderByAsc(HrmEmployeeSalary::getId);
+        lqw.eq(bo.getUserId() != null, HrmEmployeeSalary::getUserId, bo.getUserId());
         lqw.like(StringUtils.isNotBlank(bo.getEmployeeName()), HrmEmployeeSalary::getEmployeeName, bo.getEmployeeName());
         lqw.like(StringUtils.isNotBlank(bo.getDeptName()), HrmEmployeeSalary::getDeptName, bo.getDeptName());
         lqw.between(params.get("beginSalaryMonth") != null && params.get("endSalaryMonth") != null,
@@ -131,5 +138,51 @@ public class HrmEmployeeSalaryServiceImpl implements IHrmEmployeeSalaryService {
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return baseMapper.deleteByIds(ids) > 0;
+    }
+
+    /**
+     * 查询员工薪资和保险详情
+     *
+     * @param userId     员工ID
+     * @param beginMonth 开始月份（YYYYMM）
+     * @param endMonth   结束月份（YYYYMM）
+     * @return 员工薪资和保险详情
+     */
+    @Override
+    public EmployeeSalaryDetailVo querySalaryDetail(Long userId, String beginMonth, String endMonth) {
+        EmployeeSalaryDetailVo detailVo = new EmployeeSalaryDetailVo();
+        detailVo.setUserId(userId);
+        detailVo.setBeginMonth(beginMonth);
+        detailVo.setEndMonth(endMonth);
+
+        // 查询薪资列表
+        HrmEmployeeSalaryBo salaryBo = new HrmEmployeeSalaryBo();
+        salaryBo.setUserId(userId);
+        Map<String, Object> salaryParams = new HashMap<>();
+        salaryParams.put("beginSalaryMonth", beginMonth);
+        salaryParams.put("endSalaryMonth", endMonth);
+        salaryBo.setParams(salaryParams);
+        List<HrmEmployeeSalaryVo> salaryList = this.queryList(salaryBo);
+        detailVo.setSalaryList(salaryList);
+
+        // 获取员工姓名
+        if (!salaryList.isEmpty()) {
+            detailVo.setEmployeeName(salaryList.get(0).getEmployeeName());
+        }
+
+        // 查询五险一金列表
+        LambdaQueryWrapper<HrmEmployeeSocialInsurance> insuranceLqw = Wrappers.lambdaQuery();
+        insuranceLqw.eq(HrmEmployeeSocialInsurance::getUserId, userId);
+        insuranceLqw.between(HrmEmployeeSocialInsurance::getInsuranceMonth, beginMonth, endMonth);
+        insuranceLqw.orderByAsc(HrmEmployeeSocialInsurance::getInsuranceMonth);
+        List<HrmEmployeeSocialInsuranceVo> insuranceList = socialInsuranceMapper.selectVoList(insuranceLqw);
+        detailVo.setInsuranceList(insuranceList);
+
+        // 如果从薪资中没取到姓名，尝试从保险中取
+        if (detailVo.getEmployeeName() == null && !insuranceList.isEmpty()) {
+            detailVo.setEmployeeName(insuranceList.get(0).getEmployeeName());
+        }
+
+        return detailVo;
     }
 }

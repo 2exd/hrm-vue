@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
+import org.springframework.web.bind.annotation.RequestParam;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +18,7 @@ import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
+import org.dromara.hrm.money.domain.vo.EmployeeSalaryDetailVo;
 import org.dromara.hrm.money.domain.vo.HrmEmployeeSalaryVo;
 import org.dromara.hrm.money.domain.bo.HrmEmployeeSalaryBo;
 import org.dromara.hrm.money.service.IHrmEmployeeSalaryService;
@@ -101,5 +103,21 @@ public class HrmEmployeeSalaryController extends BaseController {
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ids) {
         return toAjax(hrmEmployeeSalaryService.deleteWithValidByIds(List.of(ids), true));
+    }
+
+    /**
+     * 查询员工薪资和保险详情
+     *
+     * @param userId     员工ID
+     * @param beginMonth 开始月份（YYYYMM）
+     * @param endMonth   结束月份（YYYYMM）
+     */
+    @SaCheckPermission("money:employeeSalary:query")
+    @GetMapping("/detail")
+    public R<EmployeeSalaryDetailVo> getSalaryDetail(
+            @NotNull(message = "员工ID不能为空") @RequestParam Long userId,
+            @NotBlank(message = "开始月份不能为空") @RequestParam String beginMonth,
+            @NotBlank(message = "结束月份不能为空") @RequestParam String endMonth) {
+        return R.ok(hrmEmployeeSalaryService.querySalaryDetail(userId, beginMonth, endMonth));
     }
 }
