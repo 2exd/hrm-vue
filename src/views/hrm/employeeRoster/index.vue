@@ -148,6 +148,14 @@
           </template>
         </el-table-column>
         <el-table-column align="center" label="备注" prop="remark" />
+        <el-table-column align="center" label="附件" prop="files" width="80">
+          <template #default="scope">
+            <el-tag v-if="scope.row.files && scope.row.files.length > 0" type="success">
+              {{ scope.row.files.length }}个
+            </el-tag>
+            <el-tag v-else type="info">无</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column align="center" class-name="small-padding fixed-width" fixed="right" label="操作">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
@@ -233,6 +241,39 @@
           <el-input v-model="form.remark" placeholder="请输入内容" type="textarea" />
         </el-form-item>
       </el-form>
+
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button v-hasPermi="['system:oss:upload']" type="primary" plain icon="Upload" @click="handleFile">上传文件</el-button>
+        </el-col>
+      </el-row>
+
+      <!-- 已上传文件列表 -->
+      <div v-if="fileList.length > 0" class="file-list-container">
+        <div class="file-list-title">已上传文件：</div>
+        <el-table :data="fileList" border size="small" style="width: 100%">
+          <el-table-column label="文件名" prop="originalName" show-overflow-tooltip />
+<!--          <el-table-column label="上传人" prop="createByName" width="100" />-->
+          <el-table-column label="上传时间" prop="createTime" width="150" />
+          <el-table-column label="操作" width="150" align="center">
+            <template #default="scope">
+              <el-button link type="primary" size="small" @click="handlePreview(scope.row)">预览</el-button>
+              <el-button 
+                v-if="scope.row.ossId" 
+                link 
+                type="primary" 
+                size="small" 
+                @click="handleDownload(scope.row)"
+              >下载</el-button>
+              <el-button link type="danger" size="small" @click="handleDeleteFile(scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div v-else class="file-list-empty">
+        <el-empty description="暂无附件" :image-size="60" />
+      </div>
+
       <template #footer>
         <div class="dialog-footer">
           <el-button :loading="buttonLoading" type="primary" @click="submitForm">确 定 </el-button>
@@ -242,15 +283,74 @@
     </el-dialog>
 
     <PersonnelSelection ref="personnelSelectionRef" @confirm="handleConfirm" />
+
+    <!-- 添加或修改OSS对象存储对话框 -->
+    <el-dialog v-model="ossDialog.visible" :title="ossDialog.title" width="500px" append-to-body>
+      <el-form ref="ossFormRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="文件名">
+          <commonFileUpload v-model="ossForm.file" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button :loading="buttonLoading" type="primary" @click="ossConfirm">确 定</el-button>
+          <el-button @click="ossCancel">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 文件预览对话框 -->
+    <el-dialog v-model="previewDialog.visible" :title="previewDialog.title" width="80%" top="5vh" append-to-body destroy-on-close class="file-preview-dialog">
+      <div class="preview-container">
+        <!-- 图片预览 -->
+        <div v-if="isImage(previewFile?.fileSuffix)" class="preview-image">
+          <img :src="previewFile?.url" style="max-width: 100%; max-height: 70vh; display: block; margin: 0 auto;" />
+        </div>
+        
+        <!-- PDF 预览 -->
+        <div v-else-if="isPdf(previewFile?.fileSuffix)" class="preview-pdf">
+          <iframe :src="previewFile?.url" width="100%" style="border: none;"></iframe>
+        </div>
+        
+        <!-- Office 文档预览（提示下载查看） -->
+        <div v-else-if="isOffice(previewFile?.fileSuffix)" class="preview-office">
+          <el-empty description="Office 文档请下载后查看">
+            <template #default>
+              <p style="color: #909399; margin: 10px 0;">文件名：{{ previewFile?.originalName }}</p>
+              <p style="color: #909399; margin: 5px 0; font-size: 12px;">支持格式：Word、Excel、PPT</p>
+              <el-button v-if="previewFile?.ossId" type="primary" @click="handleDownload(previewFile)">
+                <el-icon><Download /></el-icon> 下载文档
+              </el-button>
+            </template>
+          </el-empty>
+        </div>
+        
+        <!-- 文本文件预览 -->
+        <div v-else-if="isText(previewFile?.fileSuffix)" class="preview-text">
+          <pre style="max-height: 70vh; overflow: auto; background: #f5f7fa; padding: 15px; border-radius: 4px;">{{ previewContent }}</pre>
+        </div>
+        
+        <!-- 不支持的文件类型 -->
+        <div v-else class="preview-unsupported">
+          <el-empty description="暂不支持该文件类型的预览">
+            <template #default>
+              <p style="color: #909399; margin: 10px 0;">文件类型：{{ previewFile?.fileSuffix }}</p>
+              <el-button v-if="previewFile?.ossId" type="primary" @click="handleDownload(previewFile)">下载文件查看</el-button>
+            </template>
+          </el-empty>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" name="EmployeeRoster" setup>
 import { addEmployeeRoster, delEmployeeRoster, getEmployeeRoster, listEmployeeRoster, updateEmployeeRoster } from '@/api/hrm/employeeRoster';
-import { EmployeeRosterForm, EmployeeRosterQuery, EmployeeRosterVO } from '@/api/hrm/employeeRoster/types';
+import { EmployeeRosterForm, EmployeeRosterQuery, EmployeeRosterVO, EmployeeFile } from '@/api/hrm/employeeRoster/types';
 import { parseTime } from '@/utils/ruoyi';
 import { reactive, ref } from 'vue';
 import PersonnelSelection from '@/views/hrm/common/personnelSelection.vue';
+import { OssForm, OssQuery } from "@/api/system/oss/types";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -292,7 +392,8 @@ const initFormData: EmployeeRosterForm = {
   contractCode: undefined,
   contractExpireTime: undefined,
   exitTime: undefined,
-  remark: undefined
+  remark: undefined,
+  file: undefined
 };
 const data = reactive<PageData<EmployeeRosterForm, EmployeeRosterQuery>>({
   form: { ...initFormData },
@@ -377,6 +478,7 @@ const getList = async () => {
 /** 取消按钮 */
 const cancel = () => {
   reset();
+  fileList.value = [];
   dialog.visible = false;
 };
 
@@ -411,6 +513,7 @@ const handleSelectionChange = (selection: EmployeeRosterVO[]) => {
 /** 新增按钮操作 */
 const handleAdd = () => {
   reset();
+  fileList.value = [];
   dialog.visible = true;
   dialog.title = '添加员工花名册';
 };
@@ -420,7 +523,13 @@ const handleUpdate = async (row?: EmployeeRosterVO) => {
   reset();
   const _id = row?.id || ids.value[0];
   const res = await getEmployeeRoster(_id);
-  Object.assign(form.value, res.data);
+  console.log('详情接口返回:', res);
+  // 获取实际的业务数据（在 res.data 中）
+  const resData = res.data || res;
+  Object.assign(form.value, resData);
+  // 加载文件列表 - 优先使用列表传入的数据，否则使用详情接口返回的数据
+  fileList.value = row?.files || resData.files || [];
+  console.log('文件列表:', fileList.value);
   dialog.visible = true;
   dialog.title = '修改员工花名册';
 };
@@ -490,4 +599,190 @@ const handleConfirm = (selectedUser: any) => {
 onMounted(() => {
   getList();
 });
+
+//? 文件上传相关
+const fileList = ref<EmployeeFile[]>([]);
+const ossDialog = reactive<DialogOption>({
+  visible: false,
+  title: ''
+});
+const type = ref(0);
+const ossFormRef = ref<ElFormInstance>();
+const initOssFormData = {
+  file: undefined
+};
+const ossForm = ref({ ...initOssFormData });
+
+//? 文件预览相关
+const previewDialog = reactive<DialogOption>({
+  visible: false,
+  title: '文件预览'
+});
+const previewFile = ref<EmployeeFile | null>(null);
+const previewContent = ref<string>('');
+
+// 图片类型
+const imageTypes = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+// PDF类型
+const pdfTypes = ['.pdf'];
+// Office类型
+const officeTypes = ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
+// 文本类型
+const textTypes = ['.txt', '.md', '.json', '.xml', '.html', '.htm', '.css', '.js', '.ts', '.vue'];
+
+/** 判断是否为图片 */
+const isImage = (suffix?: string) => {
+  if (!suffix) return false;
+  return imageTypes.includes(suffix.toLowerCase());
+};
+
+/** 判断是否为PDF */
+const isPdf = (suffix?: string) => {
+  if (!suffix) return false;
+  return pdfTypes.includes(suffix.toLowerCase());
+};
+
+/** 判断是否为Office文档 */
+const isOffice = (suffix?: string) => {
+  if (!suffix) return false;
+  return officeTypes.includes(suffix.toLowerCase());
+};
+
+/** 判断是否为文本文件 */
+const isText = (suffix?: string) => {
+  if (!suffix) return false;
+  return textTypes.includes(suffix.toLowerCase());
+};
+
+/** 预览文件 */
+const handlePreview = async (row: EmployeeFile) => {
+  previewFile.value = row;
+  previewDialog.title = `预览 - ${row.originalName}`;
+  previewDialog.visible = true;
+  
+  // 如果是文本文件，加载内容
+  if (isText(row.fileSuffix)) {
+    try {
+      const response = await fetch(row.url);
+      previewContent.value = await response.text();
+    } catch (error) {
+      previewContent.value = '加载文件内容失败';
+    }
+  }
+};
+
+// OSS表单验证规则
+const ossRules = reactive({
+  file: [{ required: true, message: '文件不能为空', trigger: 'blur' }]
+});
+/** 文件按钮操作 */
+const handleFile = () => {
+  // ossReset();
+  type.value = 0;
+  ossDialog.visible = true;
+  ossDialog.title = '上传文件';
+  console.log("文件列表：", ossForm.value);
+};
+
+/** 确认按钮 */
+function ossConfirm() {
+  console.log("上传文件：", ossForm.value);
+  ossDialog.visible = false;
+
+  // 将上传的文件ID赋值给表单
+  form.value.file = ossForm.value.file
+
+  // 将新上传的文件添加到文件列表显示（通过uploadList缓存）
+  // 实际文件列表会在保存后从后端重新加载
+  proxy?.$modal.msgSuccess('文件上传成功，保存后生效');
+}
+
+/** 取消按钮 */
+function ossCancel() {
+  ossDialog.visible = false;
+  ossReset();
+}
+
+/** 表单重置 */
+function ossReset() {
+  ossForm.value = { ...initOssFormData };
+  ossFormRef.value?.resetFields();
+}
+
+/** 下载文件 */
+const handleDownload = (row?: EmployeeFile | null) => {
+  console.log('handleDownload 被调用，参数:', row);
+  if (!row) {
+    ElMessage.warning('文件信息为空，无法下载');
+    return;
+  }
+  if (!row.ossId) {
+    ElMessage.warning('文件缺少 ossId，无法下载');
+    console.error('文件数据不完整:', row);
+    return;
+  }
+  // 确保 ossId 是字符串，避免大数字精度丢失
+  const ossId = String(row.ossId);
+  console.log('开始下载文件，ossId:', ossId, '文件名:', row.originalName);
+  proxy?.$download.oss(ossId);
+};
+
+/** 删除文件 */
+const handleDeleteFile = async (row: EmployeeFile) => {
+  await proxy?.$modal.confirm('是否确认删除文件"' + row.originalName + '"？');
+  // 调用删除文件接口
+  const { delOss } = await import('@/api/system/oss');
+  await delOss(row.ossId);
+  // 从列表中移除
+  fileList.value = fileList.value.filter(item => item.id !== row.id);
+  proxy?.$modal.msgSuccess('删除成功');
+};
 </script>
+
+<style lang="scss" scoped>
+.file-list-container {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+
+  .file-list-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #606266;
+  }
+}
+
+.file-list-empty {
+  margin-top: 10px;
+  padding: 20px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+
+.preview-container {
+  min-height: 400px;
+  
+  .preview-image,
+  .preview-pdf,
+  .preview-office,
+  .preview-text {
+    width: 100%;
+  }
+  
+  .preview-unsupported,
+  .preview-office {
+    padding: 40px 0;
+  }
+}
+
+/* 预览对话框样式调整 */
+.file-preview-dialog :deep(.el-dialog__body) {
+  padding: 10px 20px;
+}
+
+/* PDF iframe 高度设置 */
+.preview-pdf iframe {
+  height: 70vh;
+}
+</style>

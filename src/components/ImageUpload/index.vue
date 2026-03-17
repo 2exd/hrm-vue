@@ -46,6 +46,7 @@ import { OssVO } from '@/api/system/oss/types';
 import { propTypes } from '@/utils/propTypes';
 import { globalHeaders } from '@/utils/request';
 import { compressAccurately } from 'image-conversion';
+import { Plus } from "@element-plus/icons-vue";
 
 const props = defineProps({
   modelValue: {

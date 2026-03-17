@@ -1,3 +1,61 @@
+/**
+ * 员工附件文件接口
+ */
+export interface EmployeeFile {
+  /**
+   * 文件ID
+   */
+  id: string | number;
+  /**
+   * OSS文件ID
+   */
+  ossId: string | number;
+  /**
+   * 文件名（存储路径）
+   */
+  fileName: string;
+  /**
+   * 原始文件名
+   */
+  originalName: string;
+  /**
+   * 文件后缀
+   */
+  fileSuffix: string;
+  /**
+   * 文件URL
+   */
+  url: string;
+  /**
+   * 扩展信息
+   */
+  ext1?: string;
+  /**
+   * 创建时间
+   */
+  createTime: string;
+  /**
+   * 创建人ID
+   */
+  createBy: number;
+  /**
+   * 创建人名称
+   */
+  createByName: string;
+  /**
+   * 存储服务
+   */
+  service: string;
+  /**
+   * 业务类型
+   */
+  businessType: string;
+  /**
+   * 业务ID
+   */
+  businessId: string | number;
+}
+
 export interface EmployeeRosterVO {
   /**
    * 主键ID
@@ -88,6 +146,11 @@ export interface EmployeeRosterVO {
    * 备注
    */
   remark: string;
+
+  /**
+   * 附件文件列表
+   */
+  files?: EmployeeFile[];
 
 }
 
@@ -181,6 +244,11 @@ export interface EmployeeRosterForm extends BaseEntity {
    * 备注
    */
   remark?: string;
+
+  /**
+   * 上传的文件ossId列表（逗号分隔）
+   */
+  file?: string;
 
 }
 

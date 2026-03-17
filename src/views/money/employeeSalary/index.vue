@@ -4,13 +4,13 @@
       <div v-show="showSearch" class="mb-[10px]">
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="员工姓名" prop="employeeName">
+            <el-form-item label="姓名" prop="employeeName">
               <el-input v-model="queryParams.employeeName" placeholder="请输入员工姓名" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="部门名称" prop="deptName">
+            <el-form-item label="部门" prop="deptName">
               <el-input v-model="queryParams.deptName" placeholder="请输入所属部门名称" clearable @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="薪资月份" style="width: 308px">
+            <el-form-item label="月份" style="width: 308px">
               <el-date-picker
                 v-model="dateRangeSalaryMonth"
                 value-format="YYYY-MM-DD HH:mm:ss"
@@ -52,9 +52,9 @@
       <el-table v-loading="loading" border :data="employeeSalaryList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
 <!--        <el-table-column label="主键ID" align="center" prop="id" v-if="true" />-->
-        <el-table-column label="员工姓名" align="center" prop="employeeName" />
-        <el-table-column label="部门名称" align="center" prop="deptName" />
-        <el-table-column label="薪资月份" align="center" prop="salaryMonth" width="180">
+        <el-table-column label="姓名" align="center" prop="employeeName" />
+        <el-table-column label="部门" align="center" prop="deptName" />
+        <el-table-column label="月份" align="center" prop="salaryMonth">
           <template #default="scope">
             <span>{{ parseTime(scope.row.salaryMonth, '{y}-{m}') }}</span>
           </template>
@@ -87,10 +87,10 @@
     <!-- 添加或修改员工薪资对话框 -->
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="960px" append-to-body>
       <el-form ref="employeeSalaryFormRef" :model="form" :rules="rules" label-width="150px">
-        <el-form-item label="员工姓名" prop="employeeName">
+        <el-form-item label="姓名" prop="employeeName">
           <el-input v-model="form.employeeName" placeholder="请选择员工" @click="handleSelectClick('delegateName')" />
         </el-form-item>
-        <el-form-item label="薪资月份" prop="salaryMonth">
+        <el-form-item label="月份" prop="salaryMonth">
           <el-date-picker clearable
                           v-model="form.salaryMonth"
                           type="month"
