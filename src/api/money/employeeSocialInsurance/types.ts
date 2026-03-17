@@ -35,6 +35,11 @@ export interface EmployeeSocialInsuranceVO {
   insuranceMonth: string;
 
   /**
+   * 养老保险缴纳基数
+   */
+  pensionBase: number;
+
+  /**
    * 养老保险-个人缴纳
    */
   pensionPersonal: number;
@@ -43,6 +48,11 @@ export interface EmployeeSocialInsuranceVO {
    * 养老保险-单位缴纳
    */
   pensionCompany: number;
+
+  /**
+   * 医疗保险缴纳基数
+   */
+  medicalBase: number;
 
   /**
    * 医疗保险-个人缴纳
@@ -55,6 +65,11 @@ export interface EmployeeSocialInsuranceVO {
   medicalCompany: number;
 
   /**
+   * 失业保险缴纳基数
+   */
+  unemploymentBase: number;
+
+  /**
    * 失业保险-个人缴纳
    */
   unemploymentPersonal: number;
@@ -63,26 +78,6 @@ export interface EmployeeSocialInsuranceVO {
    * 失业保险-单位缴纳
    */
   unemploymentCompany: number;
-
-  /**
-   * 工伤保险-单位缴纳（个人不缴）
-   */
-  injuryCompany: number;
-
-  /**
-   * 生育保险-单位缴纳（个人不缴）
-   */
-  maternityCompany: number;
-
-  /**
-   * 住房公积金-个人缴纳
-   */
-  housingFundPersonal: number;
-
-  /**
-   * 住房公积金-单位缴纳
-   */
-  housingFundCompany: number;
 
   /**
    * 累计专项附加扣除-子女教育费
@@ -153,6 +148,11 @@ export interface EmployeeSocialInsuranceForm extends BaseEntity {
   insuranceMonth?: string;
 
   /**
+   * 养老保险缴纳基数
+   */
+  pensionBase?: number;
+
+  /**
    * 养老保险-个人缴纳
    */
   pensionPersonal?: number;
@@ -161,6 +161,11 @@ export interface EmployeeSocialInsuranceForm extends BaseEntity {
    * 养老保险-单位缴纳
    */
   pensionCompany?: number;
+
+  /**
+   * 医疗保险缴纳基数
+   */
+  medicalBase?: number;
 
   /**
    * 医疗保险-个人缴纳
@@ -173,6 +178,11 @@ export interface EmployeeSocialInsuranceForm extends BaseEntity {
   medicalCompany?: number;
 
   /**
+   * 失业保险缴纳基数
+   */
+  unemploymentBase?: number;
+
+  /**
    * 失业保险-个人缴纳
    */
   unemploymentPersonal?: number;
@@ -181,26 +191,6 @@ export interface EmployeeSocialInsuranceForm extends BaseEntity {
    * 失业保险-单位缴纳
    */
   unemploymentCompany?: number;
-
-  /**
-   * 工伤保险-单位缴纳（个人不缴）
-   */
-  injuryCompany?: number;
-
-  /**
-   * 生育保险-单位缴纳（个人不缴）
-   */
-  maternityCompany?: number;
-
-  /**
-   * 住房公积金-个人缴纳
-   */
-  housingFundPersonal?: number;
-
-  /**
-   * 住房公积金-单位缴纳
-   */
-  housingFundCompany?: number;
 
   /**
    * 累计专项附加扣除-子女教育费
