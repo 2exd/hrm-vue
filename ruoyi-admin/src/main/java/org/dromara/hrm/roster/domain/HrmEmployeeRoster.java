@@ -1,4 +1,4 @@
-package org.dromara.hrm.domain;
+package org.dromara.hrm.roster.domain;
 
 import org.dromara.common.tenant.core.TenantEntity;
 import com.baomidou.mybatisplus.annotation.*;

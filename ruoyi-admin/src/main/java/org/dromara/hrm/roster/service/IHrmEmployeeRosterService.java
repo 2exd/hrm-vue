@@ -1,7 +1,7 @@
-package org.dromara.hrm.service;
+package org.dromara.hrm.roster.service;
 
-import org.dromara.hrm.domain.vo.HrmEmployeeRosterVo;
-import org.dromara.hrm.domain.bo.HrmEmployeeRosterBo;
+import org.dromara.hrm.roster.domain.vo.HrmEmployeeRosterVo;
+import org.dromara.hrm.roster.domain.bo.HrmEmployeeRosterBo;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.mybatis.core.page.PageQuery;
 

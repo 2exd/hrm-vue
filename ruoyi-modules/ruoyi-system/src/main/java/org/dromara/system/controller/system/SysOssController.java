@@ -5,6 +5,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.QueryGroup;
 import org.dromara.common.log.annotation.Log;
@@ -30,6 +31,7 @@ import java.util.List;
  *
  * @author Lion Li
  */
+@Slf4j
 @Validated
 @RequiredArgsConstructor
 @RestController
@@ -82,10 +84,30 @@ public class SysOssController extends BaseController {
      *
      * @param ossId OSS对象ID
      */
+//    @SaCheckPermission("system:oss:download")
+//    @GetMapping("/download/{ossId}")
+//    public void download(@PathVariable Long ossId, HttpServletResponse response) throws IOException {
+//        ossService.download(ossId, response);
+//    }
     @SaCheckPermission("system:oss:download")
     @GetMapping("/download/{ossId}")
-    public void download(@PathVariable Long ossId, HttpServletResponse response) throws IOException {
-        ossService.download(ossId, response);
+    public void download(@PathVariable Long ossId, HttpServletResponse response) {
+        try {
+            ossService.download(ossId, response);
+        } catch (Exception e) {
+            // 捕获所有异常，手动返回JSON格式的错误响应
+            response.reset(); // 重置响应头
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+            try {
+                // 构造通用返回对象 R 的JSON字符串
+                String errorJson = "{\"code\":500,\"msg\":\"文件下载失败：" + e.getMessage().replace("\"", "\\\"") + "\",\"data\":null}";
+                response.getWriter().write(errorJson);
+            } catch (IOException ioException) {
+                // 兜底：输出基础错误信息
+                ioException.printStackTrace();
+            }
+        }
     }
 
     /**

@@ -1,4 +1,4 @@
-package org.dromara.hrm.controller;
+package org.dromara.hrm.roster.controller;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.excel.utils.ExcelUtil;
-import org.dromara.hrm.domain.vo.HrmEmployeeRosterVo;
-import org.dromara.hrm.domain.bo.HrmEmployeeRosterBo;
-import org.dromara.hrm.service.IHrmEmployeeRosterService;
+import org.dromara.hrm.roster.domain.vo.HrmEmployeeRosterVo;
+import org.dromara.hrm.roster.domain.bo.HrmEmployeeRosterBo;
+import org.dromara.hrm.roster.service.IHrmEmployeeRosterService;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 
 /**

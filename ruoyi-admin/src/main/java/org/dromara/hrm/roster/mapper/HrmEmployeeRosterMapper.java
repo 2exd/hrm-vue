@@ -1,7 +1,7 @@
-package org.dromara.hrm.mapper;
+package org.dromara.hrm.roster.mapper;
 
-import org.dromara.hrm.domain.HrmEmployeeRoster;
-import org.dromara.hrm.domain.vo.HrmEmployeeRosterVo;
+import org.dromara.hrm.roster.domain.HrmEmployeeRoster;
+import org.dromara.hrm.roster.domain.vo.HrmEmployeeRosterVo;
 import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
 
 /**

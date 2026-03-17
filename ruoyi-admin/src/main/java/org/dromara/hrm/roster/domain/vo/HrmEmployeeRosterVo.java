@@ -1,8 +1,9 @@
-package org.dromara.hrm.domain.vo;
+package org.dromara.hrm.roster.domain.vo;
 
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.dromara.hrm.domain.HrmEmployeeRoster;
+
+import org.dromara.hrm.oss.domain.vo.FileOssVo;
+import org.dromara.hrm.roster.domain.HrmEmployeeRoster;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
 import org.dromara.common.excel.annotation.ExcelDictFormat;
@@ -12,8 +13,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
-
+import java.util.List;
 
 
 /**
@@ -142,4 +142,5 @@ public class HrmEmployeeRosterVo implements Serializable {
     private String remark;
 
 
+    private List<FileOssVo> files;
 }
