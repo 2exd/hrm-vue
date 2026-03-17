@@ -10,6 +10,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 
@@ -69,55 +70,55 @@ public class HrmEmployeeSalaryVo implements Serializable {
      * 基薪
      */
     @ExcelProperty(value = "基薪")
-    private Long basicSalary;
+    private BigDecimal basicSalary;
 
     /**
      * 月绩效工资
      */
     @ExcelProperty(value = "月绩效工资")
-    private Long monthlyPerformanceSalary;
+    private BigDecimal monthlyPerformanceSalary;
 
     /**
      * 证书费
      */
     @ExcelProperty(value = "证书费")
-    private Long certificateFee;
+    private BigDecimal certificateFee;
 
     /**
      * 岗位工资
      */
     @ExcelProperty(value = "岗位工资")
-    private Long postSalary;
+    private BigDecimal postSalary;
 
     /**
      * 加班工资
      */
     @ExcelProperty(value = "加班工资")
-    private Long overtimeSalary;
+    private BigDecimal overtimeSalary;
 
     /**
      * 通讯补助
      */
     @ExcelProperty(value = "通讯补助")
-    private Long communicationSubsidy;
+    private BigDecimal communicationSubsidy;
 
     /**
      * 交通补助
      */
     @ExcelProperty(value = "交通补助")
-    private Long trafficSubsidy;
+    private BigDecimal trafficSubsidy;
 
     /**
      * 餐补/误餐
      */
     @ExcelProperty(value = "餐补/误餐")
-    private Long mealSubsidy;
+    private BigDecimal mealSubsidy;
 
     /**
      * 其他加款
      */
     @ExcelProperty(value = "其他加款")
-    private Long otherAdditional;
+    private BigDecimal otherAdditional;
 
     /**
      * 薪资月份（格式：YYYYMM）

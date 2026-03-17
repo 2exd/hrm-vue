@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import java.util.Date;
+import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
@@ -64,82 +65,82 @@ public class HrmEmployeeSocialInsuranceBo extends BaseEntity {
     /**
      * 养老保险-个人缴纳
      */
-    private Long pensionPersonal;
+    private BigDecimal pensionPersonal;
 
     /**
      * 养老保险-单位缴纳
      */
-    private Long pensionCompany;
+    private BigDecimal pensionCompany;
 
     /**
      * 医疗保险-个人缴纳
      */
-    private Long medicalPersonal;
+    private BigDecimal medicalPersonal;
 
     /**
      * 医疗保险-单位缴纳
      */
-    private Long medicalCompany;
+    private BigDecimal medicalCompany;
 
     /**
      * 失业保险-个人缴纳
      */
-    private Long unemploymentPersonal;
+    private BigDecimal unemploymentPersonal;
 
     /**
      * 失业保险-单位缴纳
      */
-    private Long unemploymentCompany;
+    private BigDecimal unemploymentCompany;
 
     /**
      * 工伤保险-单位缴纳（个人不缴）
      */
-    private Long injuryCompany;
+    private BigDecimal injuryCompany;
 
     /**
      * 生育保险-单位缴纳（个人不缴）
      */
-    private Long maternityCompany;
+    private BigDecimal maternityCompany;
 
     /**
      * 住房公积金-个人缴纳
      */
-    private Long housingFundPersonal;
+    private BigDecimal housingFundPersonal;
 
     /**
      * 住房公积金-单位缴纳
      */
-    private Long housingFundCompany;
+    private BigDecimal housingFundCompany;
 
     /**
      * 累计专项附加扣除-子女教育费
      */
-    private Long childrenEducation;
+    private BigDecimal childrenEducation;
 
     /**
      * 累计专项附加扣除-继续教育费
      */
-    private Long continuingEducation;
+    private BigDecimal continuingEducation;
 
     /**
      * 累计专项附加扣除-住房贷款
      */
-    private Long housingLoan;
+    private BigDecimal housingLoan;
 
     /**
      * 累计专项附加扣除-住房租金
      */
-    private Long housingRent;
+    private BigDecimal housingRent;
 
     /**
      * 累计专项附加扣除-赡养老人
      */
-    private Long supportElderly;
+    private BigDecimal supportElderly;
 
     /**
      * 累计专项附加扣除-婴幼儿专项
      */
-    private Long infantCare;
+    private BigDecimal infantCare;
 
 
 }
